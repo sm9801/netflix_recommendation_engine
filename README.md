@@ -1,4 +1,4 @@
-# Netflix Recommendation System
+# Netflix Recommendation Engine
 
 This project is a machine learning-powered recommendation system designed to suggest movies, shows, and other programs to users based on their previous viewing preferences and ratings on Netflix. Using a combination of collaborative filtering techniques and clustering, the system predicts user preferences and tailors recommendations accordingly.
 
