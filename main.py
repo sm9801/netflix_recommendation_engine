@@ -1,9 +1,10 @@
 import numpy as np
-import kmeans
-import common
-import naive_em
 import pandas as pd
+
+import common
 import em
+import kmeans
+import naive_em
 
 X = np.loadtxt("netflix_incomplete.txt")
 
@@ -31,8 +32,8 @@ print(X_gold)
 mixture1, post1 = common.init(X, 4, 4)
 mixture1, post1, cost1 = kmeans.run(X, mixture1, post1)
 
-plot_em1 = common.plot(X, mixture, post, 'K = 2, seed = 0, Mixture' )
-plot_k1 = common.plot(X, mixture1, post1, 'K = 4, seed = 4, Kmeans')
+# plot_em1 = common.plot(X, mixture, post, 'K = 2, seed = 0, Mixture' )
+# plot_k1 = common.plot(X, mixture1, post1, 'K = 4, seed = 4, Kmeans')
 
 # m = common.bic(X, mixture, cost)
 # print(m)

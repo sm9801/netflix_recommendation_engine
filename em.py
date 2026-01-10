@@ -1,7 +1,9 @@
 """Mixture model for matrix completion"""
 from typing import Tuple
+
 import numpy as np
 from scipy.special import logsumexp
+
 from common import GaussianMixture
 
 
@@ -47,7 +49,8 @@ def estep(X: np.ndarray, mixture: GaussianMixture) -> Tuple[np.ndarray, float]:
 
 
 def mstep(X: np.ndarray, post: np.ndarray, mixture: GaussianMixture,
-          min_variance: float = .25) -> GaussianMixture:
+          min_variance: float = .25, max_variance: float = 3.0,
+          robust: bool = True) -> GaussianMixture:
     """M-step: Updates the gaussian mixture by maximizing the log-likelihood
     of the weighted dataset
 
@@ -57,12 +60,14 @@ def mstep(X: np.ndarray, post: np.ndarray, mixture: GaussianMixture,
             for all components for all examples
         mixture: the current gaussian mixture
         min_variance: the minimum variance for each gaussian
+        max_variance: the maximum variance allowed (robustness guard)
+        robust: if True, downweight outliers using Tukey bisquare weights
 
     Returns:
         GaussianMixture: the new gaussian mixture
     """
     n, d = X.shape
-    mu_hat = mixture.mu
+    mu_hat = mixture.mu.copy()
     n_hat = np.sum(post, axis = 0)
     p_hat = n_hat / n
 
@@ -76,21 +81,36 @@ def mstep(X: np.ndarray, post: np.ndarray, mixture: GaussianMixture,
     mu_hat[target] = mu_numerator[target] / mu_denominator[target]
 
     norm_xmu = np.sum(X ** 2, axis = 1)[:, None] + np.matmul(identity_matrix, np.transpose(mu_hat) ** 2) - 2 * np.matmul(X, np.transpose(mu_hat))
+
+    if robust:
+        # Tukey bisquare weights to downweight large residuals; vectorized over components
+        residuals = np.sqrt(np.maximum(norm_xmu, 0))  # (n, K)
+        med = np.median(residuals, axis=0)
+        mad = np.median(np.abs(residuals - med), axis=0) + 1e-10  # avoid divide-by-zero
+        c = 4.685
+        u = np.abs(residuals - med) / (c * mad)
+        weights = np.where(u <= 1.0, (1.0 - u ** 2) ** 2, 0.0)
+        norm_xmu *= weights
+
     sigma_denominator = np.sum(np.sum(identity_matrix, axis = 1).reshape(-1, 1) * post, axis = 0)
     sigma_hat = np.maximum(np.sum(post * norm_xmu, axis = 0) / sigma_denominator, min_variance)
+    sigma_hat = np.minimum(sigma_hat, max_variance)
 
     return GaussianMixture(mu_hat, sigma_hat, p_hat)
     raise NotImplementedError
 
 
 def run(X: np.ndarray, mixture: GaussianMixture,
-        post: np.ndarray) -> Tuple[GaussianMixture, np.ndarray, float]:
+        post: np.ndarray, robust: bool = True,
+        max_variance: float = 3.0) -> Tuple[GaussianMixture, np.ndarray, float]:
     """Runs the mixture model
 
     Args:
         X: (n, d) array holding the data
         post: (n, K) array holding the soft counts
             for all components for all examples
+        robust: if True, enable robust weighting in the M-step
+        max_variance: upper cap on variance per component
 
     Returns:
         GaussianMixture: the new gaussian mixture
@@ -107,7 +127,7 @@ def run(X: np.ndarray, mixture: GaussianMixture,
         post = estep(X, mixture)[0]
         log_new = estep(X, mixture)[1]
 
-        mixture = mstep(X, post, mixture)
+        mixture = mstep(X, post, mixture, robust=robust, max_variance=max_variance)
 
     return mixture, post, log_new
     raise NotImplementedError
@@ -146,3 +166,4 @@ def fill_matrix(X: np.ndarray, mixture: GaussianMixture) -> np.ndarray:
     X_new[target] = np.matmul(np.exp(log_posterior), mu)[target]
     return X_new
     raise NotImplementedError
+
