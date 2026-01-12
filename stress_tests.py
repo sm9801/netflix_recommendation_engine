@@ -41,6 +41,105 @@ def apply_missing(X, missing_rate, seed=0):
 Stress Test 2: Noise
 """
 
+def add_user_heteroskedastic_noise(X, base_sigma=0.3, alpha=1.0, rng=None):
+    if rng is None: rng = np.random.default_rng()
+    X_noisy = X.copy()
+    observed_mask = X != 0
+    
+    for u in range(X.shape[0]):
+        u_idx = observed_mask[u]
+        if u_idx.sum() < 2: continue
+        
+        # Scale noise by user's internal variance
+        sigma_u = base_sigma * (1 + alpha * np.std(X[u, u_idx]))
+        noise = rng.normal(0, sigma_u, size=u_idx.sum())
+        
+        X_noisy[u, u_idx] = np.clip(X[u, u_idx] + noise, 1.0, 5.0)
+    return X_noisy
+
+def add_item_correlated_noise(X, rank=5, total_sigma=0.5, rng=None):
+    """
+    Simulates systematic bias (e.g., all horror movies getting 
+    noisier ratings due to a specific sub-genre bias).
+    """
+    if rng is None: rng = np.random.default_rng()
+    n_users, n_items = X.shape
+    
+    # Generate low-rank noise structure
+    U_noise = rng.normal(0, 1, (n_users, rank))
+    V_noise = rng.normal(0, 1, (rank, n_items))
+    low_rank_noise = (U_noise @ V_noise)
+    
+    # Standardize and scale the noise
+    low_rank_noise /= np.std(low_rank_noise)
+    low_rank_noise *= total_sigma
+    
+    X_noisy = X.copy()
+    obs = X != 0
+    X_noisy[obs] = np.clip(X[obs] + low_rank_noise[obs], 1.0, 5.0)
+    return X_noisy
+
+def apply_mnar_selection_bias(X, selection_strength=2.0, rng=None):
+    """
+    The probability of a rating being 'missing' depends on its value.
+    This breaks the EM assumption that data is MAR (Missing At Random).
+    """
+    if rng is None: rng = np.random.default_rng()
+    X_mnar = X.copy()
+    observed_indices = np.argwhere(X != 0)
+    
+    # Calculate probability of 'staying' observed
+    # Users are more likely to report extreme ratings (1 or 5)
+    ratings = X[X != 0]
+    mean_r = np.mean(ratings)
+    # Probability increases as rating deviates from mean
+    dist_from_mean = np.abs(ratings - mean_r)
+    p_keep = 1 / (1 + np.exp(-selection_strength * dist_from_mean))
+    
+    # Apply dropout
+    keep_mask = rng.random(len(observed_indices)) < p_keep
+    to_drop = observed_indices[~keep_mask]
+    
+    for u, i in to_drop:
+        X_mnar[u, i] = 0
+        
+    return X_mnar
+
+def add_adversarial_flips(X, flip_fraction=0.1, rng=None):
+    """
+    Specifically targets the EM algorithm by providing 'wrong' labels 
+    for the most certain data points.
+    """
+    if rng is None:
+        rng = np.random.default_rng()
+
+    X_flipped = X.copy()
+    observed_indices = np.argwhere(X != 0)
+    
+    if len(observed_indices) == 0:
+        return X_flipped
+
+    # Select which indices to corrupt
+    n_flips = int(len(observed_indices) * flip_fraction)
+    permuted_indices = rng.permutation(len(observed_indices))
+    flip_subset = observed_indices[permuted_indices[:n_flips]]
+
+    for u, i in flip_subset:
+        old_rating = X[u, i]
+        
+        # Mapping to create maximum distance from original sentiment
+        if old_rating >= 4:
+            new_rating = 1.0  # Love -> Hate
+        elif old_rating <= 2:
+            new_rating = 5.0  # Hate -> Love
+        else:
+            # For neutral ratings (3), flip to an extreme randomly
+            new_rating = rng.choice([1.0, 5.0])
+            
+        X_flipped[u, i] = new_rating
+
+    return X_flipped
+
 # # Baseline noise
 # def add_user_heteroskedastic_noise(X, base_sigma=0.3, alpha=1.2, rng=None):
 #     """
@@ -185,165 +284,3 @@ Stress Test 2: Noise
 
 #     return X_flipped
 
-def add_user_heteroskedastic_noise(X, base_sigma=0.3, alpha=1.0, rng=None):
-    if rng is None: rng = np.random.default_rng()
-    X_noisy = X.copy()
-    observed_mask = X != 0
-    
-    for u in range(X.shape[0]):
-        u_idx = observed_mask[u]
-        if u_idx.sum() < 2: continue
-        
-        # Scale noise by user's internal variance
-        sigma_u = base_sigma * (1 + alpha * np.std(X[u, u_idx]))
-        noise = rng.normal(0, sigma_u, size=u_idx.sum())
-        
-        X_noisy[u, u_idx] = np.clip(X[u, u_idx] + noise, 1.0, 5.0)
-    return X_noisy
-
-def add_item_correlated_noise(X, rank=5, total_sigma=0.5, rng=None):
-    """
-    Simulates systematic bias (e.g., all horror movies getting 
-    noisier ratings due to a specific sub-genre bias).
-    """
-    if rng is None: rng = np.random.default_rng()
-    n_users, n_items = X.shape
-    
-    # Generate low-rank noise structure
-    U_noise = rng.normal(0, 1, (n_users, rank))
-    V_noise = rng.normal(0, 1, (rank, n_items))
-    low_rank_noise = (U_noise @ V_noise)
-    
-    # Standardize and scale the noise
-    low_rank_noise /= np.std(low_rank_noise)
-    low_rank_noise *= total_sigma
-    
-    X_noisy = X.copy()
-    obs = X != 0
-    X_noisy[obs] = np.clip(X[obs] + low_rank_noise[obs], 1.0, 5.0)
-    return X_noisy
-
-def apply_mnar_selection_bias(X, selection_strength=2.0, rng=None):
-    """
-    The probability of a rating being 'missing' depends on its value.
-    This breaks the EM assumption that data is MAR (Missing At Random).
-    """
-    if rng is None: rng = np.random.default_rng()
-    X_mnar = X.copy()
-    observed_indices = np.argwhere(X != 0)
-    
-    # Calculate probability of 'staying' observed
-    # Users are more likely to report extreme ratings (1 or 5)
-    ratings = X[X != 0]
-    mean_r = np.mean(ratings)
-    # Probability increases as rating deviates from mean
-    dist_from_mean = np.abs(ratings - mean_r)
-    p_keep = 1 / (1 + np.exp(-selection_strength * dist_from_mean))
-    
-    # Apply dropout
-    keep_mask = rng.random(len(observed_indices)) < p_keep
-    to_drop = observed_indices[~keep_mask]
-    
-    for u, i in to_drop:
-        X_mnar[u, i] = 0
-        
-    return X_mnar
-
-import numpy as np
-from scipy.stats import t as student_t
-
-
-def add_heavy_tailed_noise(X, df=3, scale=1.0, clip_at_bounds=False, rng=None):
-    """
-    Adds non-Gaussian noise with heavy tails. 
-    Low df (e.g., 3) creates frequent extreme outliers.
-    
-    Args:
-        clip_at_bounds: If True, clip to [1,5]. If False, allow extreme outliers.
-                       Set to False to properly stress-test robustness features.
-    """
-    if rng is None:
-        rng = np.random.default_rng()
-
-    X_noisy = X.copy()
-    observed_mask = X != 0
-    n_observed = observed_mask.sum()
-
-    if n_observed == 0:
-        return X_noisy
-
-    # Generate Student's t noise
-    noise = student_t.rvs(df, size=n_observed, random_state=rng) * scale
-    
-    X_noisy[observed_mask] = X[observed_mask] + noise
-    
-    # Option to allow extreme values for better stress testing
-    if clip_at_bounds:
-        X_noisy[observed_mask] = np.clip(X_noisy[observed_mask], 1.0, 5.0)
-    
-    return X_noisy
-
-def add_adversarial_flips(X, flip_fraction=0.1, rng=None):
-    """
-    Specifically targets the EM algorithm by providing 'wrong' labels 
-    for the most certain data points.
-    """
-    if rng is None:
-        rng = np.random.default_rng()
-
-    X_flipped = X.copy()
-    observed_indices = np.argwhere(X != 0)
-    
-    if len(observed_indices) == 0:
-        return X_flipped
-
-    # Select which indices to corrupt
-    n_flips = int(len(observed_indices) * flip_fraction)
-    permuted_indices = rng.permutation(len(observed_indices))
-    flip_subset = observed_indices[permuted_indices[:n_flips]]
-
-    for u, i in flip_subset:
-        old_rating = X[u, i]
-        
-        # Mapping to create maximum distance from original sentiment
-        if old_rating >= 4:
-            new_rating = 1.0  # Love -> Hate
-        elif old_rating <= 2:
-            new_rating = 5.0  # Hate -> Love
-        else:
-            # For neutral ratings (3), flip to an extreme randomly
-            new_rating = rng.choice([1.0, 5.0])
-            
-        X_flipped[u, i] = new_rating
-
-    return X_flipped
-
-
-def add_random_uniform_noise(X, noise_range=2.0, rng=None):
-    """
-    Adds uniform random noise to test robustness without clipping.
-    Creates outliers that exceed rating bounds to properly stress-test
-    Tukey bisquare downweighting.
-    
-    Args:
-        noise_range: Range of uniform noise [-noise_range, +noise_range]
-        rng: Random number generator
-        
-    Returns:
-        X_noisy: Data with uniform noise added (may exceed [1, 5] bounds)
-    """
-    if rng is None:
-        rng = np.random.default_rng()
-    
-    X_noisy = X.copy()
-    observed_mask = X != 0
-    n_observed = observed_mask.sum()
-    
-    if n_observed == 0:
-        return X_noisy
-    
-    noise = rng.uniform(-noise_range, noise_range, size=n_observed)
-    X_noisy[observed_mask] = X[observed_mask] + noise
-    
-    # Don't clip - let Tukey weights handle extreme values
-    return X_noisy

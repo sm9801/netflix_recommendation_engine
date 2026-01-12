@@ -28,8 +28,10 @@ def log_likelihood(X: np.ndarray, mixture: GaussianMixture) -> float:
         distances[:, k] = np.sum((X - mu[k])**2, axis=1)
     
     # Log likelihood: sum of log of weighted Gaussian densities
-    # log p(X|k) = -d/2 * log(2*pi*var) - distances/(2*var + 1e-16)
-    log_densities = -0.5 * d * np.log(2 * np.pi * var) - distances / (2 * var + 1e-8)
+    eps = 1e-8
+    safe_var = np.maximum(var, eps)
+    # prevent divide by zero
+    log_densities = -0.5 * d * np.log(2 * np.pi * safe_var) - distances / (2 * safe_var)
     
     # Weighted by mixture probabilities: log(pi_k) + log p(X|k)
     weighted_log_densities = log_densities + np.log(pi + 1e-16)
