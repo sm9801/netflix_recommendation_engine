@@ -2,6 +2,8 @@
 
 This project is a machine learning-powered recommendation system designed to suggest movies, shows, and other programs to users based on their previous viewing preferences and ratings on Netflix. Using a combination of collaborative filtering techniques and clustering, the system predicts user preferences and tailors recommendations accordingly.
 
+Full results and analysis can be found here: [Netflix Analysis](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Results%20copy.ipynb)
+
 ## Table of Contents
 - [Project Overview](#project-overview)
 - [Dataset](#dataset)
@@ -17,13 +19,25 @@ This project is a machine learning-powered recommendation system designed to sug
 ## Project Overview
 This Netflix recommendation system uses collaborative filtering to generate tailored suggestions by predicting ratings for shows that users haven’t yet watched. By clustering similar users and using probabilistic modeling, the system uncovers and aligns with user preferences, enhancing user engagement with personalized recommendations.
 
+### Hypothesis
+- We expect K-means and GMM to perform similarly given the current dataset, but as underlying distribution becomes more complex and as complications are introduced, GMM will generalize better than K-means and will be reflected via test results.
+- To test our hypothesis, after EDA is performed and parameters are optimized, we will put our GMM and K-means model through 3 stress tests:
+  - Stress Test 1: Missing data at varying rates [0.1, 0.3, 0.5, 0.7]
+  - Stress Test 2: Noise introduction [baseline, moderate, strong, adversarial]
+  - Stress Test 3: Missing data at 80% and strong noise introduction
+- The results of Stress Test 3 will be used to compute percentage improvement of the optimal GMM. 
+
 ## Dataset
-The dataset contains information about:
-- **User IDs**: Unique identifiers for each user.
-- **Show IDs**: Identifiers for various shows, movies, and programs.
-- **User Ratings**: Ratings provided by users for specific shows.
+The dataset contains information about user ratings. It is a matrix of 1200 * 1200 user rating data and missing data is represented as 0.
+<img width="1784" height="919" alt="image" src="https://github.com/user-attachments/assets/7706ab95-fcee-4660-9607-26a11053b259" />
+<img width="1784" height="919" alt="image" src="https://github.com/user-attachments/assets/ba14f562-4e3b-430e-b13e-c3433002528c" />
+
+
 
 ## Approach
+
+### EDA via t-SNE
+To understand the underlying data, we will apply t-SNE plots to both K-means and GMM.
 
 ### Collaborative Filtering with Gaussian Mixture Model (GMM)
 To capture patterns in user behavior and generate personalized recommendations, the project uses a Gaussian Mixture Model (GMM) for collaborative filtering. GMM’s probabilistic approach enables the system to model complex distributions of user ratings, which improves the accuracy of predicted ratings.
@@ -75,13 +89,13 @@ K-Means clustering was implemented to segment users into distinct groups based o
 The model’s performance was evaluated using the Root Mean Square Error (RMSE) metric, which compares the predicted ratings with actual user ratings. An RMSE score of 0.48 demonstrates the model’s ability to closely approximate true user preferences.
 
 ## Results
-- **Optimal Clusters**: 3
+- **Optimal GMM Clusters**: 3
 - **RMSE**: 0.48
 
 The achieved RMSE score indicates that the model accurately predicts user ratings, allowing it to deliver recommendations that align well with user preferences.
 
-
 ## Future Improvements
 - **Hybrid Recommendation Approach**: Combine collaborative filtering with content-based filtering to improve recommendation accuracy.
+- **Model Improvement**: introduce more sophisticated robustness techniques or apply neural network recommendations
 - **Interactive User Interface**: Create a simple web or desktop interface for users to input ratings and receive recommendations.
 - **Real-Time Updates**: Integrate real-time data handling to dynamically update recommendations as users provide new ratings.
