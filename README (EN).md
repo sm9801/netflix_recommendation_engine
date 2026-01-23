@@ -174,7 +174,7 @@ With the defined model parameters, we have the following results:
   - Clusters remain well-defined and separated even at high missing rates. Distances between clusters increase as missing rate increases, indicating growing uncertainty between clusters. This is expected, as missing data increases, GMM assigns lower probabilities to each data point for cluster assignment.
   - GMM at K = 20 shows more nuanced cluster structure compared to K = 3, capturing finer distinctions among users.
 
-This stress test validates our earlier findings that GMM is more robust and better suited for capturing the underlying data distribution, especially in the presence of missing data.
+This stress test validates our earlier findings that GMM is more robust and better suited for capturing underlying data distribution, especially in the presence of missing data.
 We now begin Stress Test 2.
 
 ### Stress Test 2 (Noise Levels)
@@ -214,7 +214,7 @@ Since BIC between the two GMM settings are close, we focus on RMSE and entropy l
 
 We now calculate the overall performance increase of GMM (K = 3) over KMeans in this stress test.
 
-RMSE Improvement = $\frac{RMSE<sub>K-means</sub> - RMSE<sub>GMM</sub>}{RMSE<sub>K-means</sub>} = 29.468950777989367 %
+RMSE Improvement = $\frac{RMSE<sub>K-means</sub> - RMSE<sub>GMM</sub>}{RMSE<sub>K-means</sub>} = 29.468950777989367%$
 
 - **Optimal GMM Clusters: 3 (seed = 1)**
 - **RMSE: 2.49**
