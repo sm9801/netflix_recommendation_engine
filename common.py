@@ -1,5 +1,7 @@
 """Mixture model for collaborative filtering"""
 from typing import NamedTuple, Tuple
+import os
+import time
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.patches import Circle, Arc
@@ -79,6 +81,16 @@ def plot(X: np.ndarray, mixture: GaussianMixture, post: np.ndarray,
             mu[0], mu[1], sigma)
         ax.text(mu[0], mu[1], legend)
     plt.axis('equal')
+    # Save figure to visualizations directory before showing
+    try:
+        out_dir = os.path.join(os.getcwd(), "visualizations")
+        os.makedirs(out_dir, exist_ok=True)
+        safe_title = (title or "gaussian_mixture").strip().replace(" ", "_").replace("/", "-")
+        fname = f"{safe_title}_{int(time.time())}.png"
+        fig.savefig(os.path.join(out_dir, fname), bbox_inches='tight', dpi=200)
+    except Exception:
+        # Non-fatal: still show the plot even if saving fails
+        pass
     plt.show()
 
 
