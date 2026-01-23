@@ -236,21 +236,21 @@ def add_adversarial_flips(X, flip_fraction=0.1, rng=None):
 
 #     return X_mnar
 
-# # Severe noise (heavy-tailed)
-# def add_heavy_tailed_noise(X, df=3, scale=3.0, rng=None):
-#     if rng is None:
-#         rng = np.random.default_rng()
+# Severe noise (heavy-tailed)
+def add_heavy_tailed_noise(X, df=3, scale=3.0, rng=None):
+    if rng is None:
+        rng = np.random.default_rng()
 
-#     X_noisy = X.copy()
-#     observed = X != 0
+    X_noisy = X.copy()
+    observed = X != 0
 
-#     if observed.sum() == 0:
-#         return X_noisy
+    if observed.sum() == 0:
+        return X_noisy
 
-#     noise = student_t.rvs(df, size=observed.sum(), random_state=rng) * scale
-#     X_noisy[observed] += noise
+    noise = student_t.rvs(df, size=observed.sum(), random_state=rng) * scale
+    X_noisy[observed] += noise
 
-#     return X_noisy
+    return X_noisy
 
 # # Extreme adversarial noise - MORE AGGRESSIVE
 # def add_adversarial_flips(X, flip_fraction=0.2, rng=None):
