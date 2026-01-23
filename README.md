@@ -1,69 +1,83 @@
-# Netflix Recommendation Engine
+# Netflix 추천 엔진
 
-This project is a machine learning-powered recommendation system designed to suggest movies, shows, and other programs to users based on their previous viewing preferences and ratings on Netflix. Using a combination of collaborative filtering techniques and clustering, the system predicts user preferences and tailors recommendations accordingly.
+이 프로젝트는 Netflix에서 유저의 이전 시청 선호도와 평점을 기반으로 콘텐츠를 제안하도록 설계된 머신러닝 기반 추천 시스템입니다. 협업 필터링 기술과 클러스터링의 조합을 사용하여 시스템은 유저 선호도를 예측하여 맞춤형 추천을 제공합니다.
 
-Full results and analysis can be found here: [Netflix Analysis](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Results%20copy.ipynb)
+전체 결과 및 분석은 여기에서 확인할 수 있습니다: [Netflix 분석](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Results%20copy.ipynb)
 
-Utilized Tech Stack: Python, NumPy, Pandas, scikit-learn, Seaborn, Matplotlib, Yellowbrick, Cleanlab
+사용 기술 스택: Python, NumPy, Pandas, scikit-learn, Seaborn, Matplotlib, Yellowbrick, Cleanlab
 
-## Table of Contents
-- [Project Overview](#project-overview)
-- [Dataset and Methodology](#dataset-and-methodology)
-- [Approach](#approach)
-- [Evaluation](#evaluation)
-- [Results](#results)
-- [Future Improvements](#future-improvements)
+For English version, please click here: [Overview in English](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/README%20(EN).md)
 
-## Project Overview
-This Netflix recommendation system uses collaborative filtering to generate tailored suggestions by predicting ratings for shows that users haven’t yet watched. By clustering similar users and using probabilistic modeling, the system uncovers and aligns with user preferences, enhancing user engagement with personalized recommendations.
+## 목차
+- [프로젝트 개요](#프로젝트-개요)
+- [데이터셋 및 방법론](#데이터셋-및-방법론)
+- [접근 방식](#접근-방식)
+- [평가](#평가)
+- [결과](#결과)
+- [향후 개선 사항](#향후-개선-사항)
 
-- Problem Overview
-  - Recommendation plays a vital role in customer retention on streaming platforms such as Netflix, because recommendation systems feed content that consumers might enjoy, and therefore, prolongs customer retention rates. As such, a proficient recommendation system has a correlating factor in determining sales of Netflix subscriptions. Without it, or with a lackluster version of it, users face negative experience while using the streaming platform which may increase the rate of customer retention.
-  - To create a production ready recommendation system, it is imperative to first understand the underlying distribution of user preferences. By modeling user behavior, we can then assign probabilities to contents to determine whether a user may enjoy a content or not.
-  - We aim to create the best model for such recommendations by first determining the structure of user data given our dataset. Afterwards, we will define and test algorithms for predicting user ratings for recommendations.
+## 프로젝트 개요
+이 Netflix 추천 시스템은 협업 필터링 기반으로 유저가 아직 시청하지 않은 콘텐츠에 대한 평점을 예측하여 맞춤형 추천을 생성합니다.
+유사한 유저를 클러스터링하고 확률적 모델링을 적용함으로써 유저 선호도의 잠재적 구조를 발굴하고, 개인화된 추천을 통해 유저 참여도를 향상시키는 것을 목표로 합니다.
 
-## Dataset and Methodology
+- 문제 개요
 
-The dataset contains information about user ratings. It is a matrix of 1200 * 1200 user rating data and missing data is represented as 0.
-To assign ratings for the missing data, we implemented the K-means and Gaussian Mixture Models (GMM) for clustering, and the Expectation-Maximization (EM) algorithm for modeling and rating predictions.
+    - 추천 시스템은 Netflix와 같은 스트리밍 플랫폼에서 고객 유지(Customer Retention)에 핵심적인 역할을 합니다.
+    유저 취향에 맞는 콘텐츠를 지속적으로 제공함으로써 시청 경험을 개선하고, 이는 곧 구독 유지 및 매출과 직결됩니다.
+    반대로 추천 품질이 낮을 경우 유저 경험이 저하되어 이탈률 증가로 이어질 수 있습니다.
 
-K-means was selected as an initial baseline due to its computational efficiency, simplicity, and interpretability. It performs well on large datasets and provides clear, hard cluster assignments, making it suitable for quickly identifying dominant user segments based on rating behavior. This allowed us to establish a strong baseline for user segmentation and evaluate cluster structure using metrics such as RMSE and silhouette behavior.
+    - 프로덕션 수준의 추천 시스템을 구축하기 위해서는 먼저 유저 선호도의 기본적인 분포 구조를 이해하는 것이 필수적입니다.
+    유저 행동을 모델링함으로써 각 콘텐츠에 대한 선호 확률을 추정할 수 있으며, 이를 통해 유저가 해당 콘텐츠를 즐길 가능성을 예측할 수 있습니다.
 
-However, user preferences in a real-world streaming platform like Netflix are rarely exclusive. Users often belong to multiple preference groups, which hard clustering cannot fully capture. To address this limitation, Gaussian Mixture Models were introduced. GMMs model each cluster as a probability distribution and assign users soft membership probabilities, allowing the recommendation system to reflect uncertainty and overlapping interests. This probabilistic formulation better aligns with real viewing behavior and enables more nuanced recommendations.
+    - 본 프로젝트에서는 데이터셋을 기반으로 유저 평점 데이터의 구조를 분석한 뒤,
+    추천을 위한 유저 평점 예측 알고리즘을 정의하고 비교 및 검증함으로써 추천 성능이 가장 우수한 모델을 도출하는 것을 목표로 합니다.
 
-After data points are assigned cluster probabilities via GMM, ratings will be predicted via the Expectation-Maximization (EM) algorithm. In this recommendation system, the EM algorithm helps assign users to probabilistic clusters, capturing similarities in their preferences and improving rating predictions.
+## 데이터셋 및 방법론
 
-1. **E-Step (Expectation Step)**: Calculate the expected value of the latent variables based on the observed data and the current parameter estimates.
+데이터셋은 유저 평점 정보를 포함하고 있으며, 1,200 × 1,200 크기의 유저–아이템 평점 행렬로 구성되어 있습니다.
+누락된 평점 값은 0으로 표시되어 있으며, 이러한 결측값을 보완하기 위해 K-means 및 가우스 혼합 모델(GMM)을 활용한 클러스터링과 기대값 최대화(Expectation–Maximization, EM) 알고리즘을 통한 평점 예측을 수행했습니다.
 
-   Given data  $X$ and current parameters $\theta$, compute the responsibilities (posterior probabilities) for each cluster $k$ :
+K-means는 계산 효율성, 단순성, 해석 가능성 측면에서 장점이 있어 초기 baseline 모델로 선택되었습니다.
+대규모 데이터셋에서도 안정적으로 동작하며 명확한 hard clustering 할당을 통해 평점 패턴에 기반한 주요 유저 세그먼트를 빠르게 식별할 수 있습니다. 이를 통해 유저 segmentation의 기준선을 설정하고 RMSE 및 실루엣 점수와 같은 지표를 활용하여 군집화 구조를 평가할 수 있었습니다.
+
+그러나 Netflix와 같은 실제 스트리밍 플랫폼 환경에서 유저 선호도는 단일한 그룹에 독점적으로 속하지 않는 경우가 많습니다.
+대부분의 유저는 여러 취향 그룹에 동시에 속하며 이러한 특성은 hard clustering만으로는 충분히 반영하기 어렵습니다.
+이를 보완하기 위해 GMM을 도입하였습니다.
+
+GMM은 각 클러스터를 확률 분포로 모델링하고 유저에게 소프트 할당 확률을 배정함으로써 선호도의 중첩과 불확실성을 효과적으로 표현할 수 있습니다. 이러한 확률적 접근 방식은 실제 시청 행동과 부합하며 보다 정교한 추천을 가능하게 합니다. GMM을 통해 각 데이터 포인트에 대한 클러스터 확률이 추정된 이후 (EM) 알고리즘을 적용하여 평점을 예측합니다.
+본 추천 시스템에서 EM 알고리즘은 유저 간 선호도의 유사성을 확률적으로 학습함으로써 평점 예측의 정확도를 향상시키는 역할을 합니다.
+
+1. **E-단계 (기대값 단계)**: 관찰된 데이터와 현재 매개변수 추정치를 기반으로 잠재 변수의 기대값을 계산합니다.
+
+   데이터 $X$와 현재 매개변수 $\theta$가 주어지면 각 클러스터 $k$에 대한 사후 확률 (posterior probabilities)을 계산합니다:
    
    $\gamma_{z_i} = P(z_i | X; \theta) = \frac{\pi_k \, \mathcal{N}(x_i | \mu_k, \Sigma_k)}{\sum_{j=1}^{K} \pi_j \, \mathcal{N}(x_i | \mu_j, \Sigma_j)}$
    
-   where:
-   - $\gamma_{z_i}$ is the responsibility of cluster \( k \) for data point $x_i$,
-   - $\pi_k$ is the prior probability of cluster $k$,
-   - $\mathcal{N}(x_i | \mu_k, \Sigma_k)$ is the Gaussian distribution for cluster $k$ with mean $\mu_k$ and covariance $\Sigma_k$.
+   여기서:
+   - $\gamma_{z_i}$는 데이터 포인트 $x_i$에 대한 클러스터 \( k \)의 사후 확률이며,
+   - $\pi_k$는 클러스터 $k$의 사전 확률이고,
+   - $\mathcal{N}(x_i | \mu_k, \Sigma_k)$는 평균 $\mu_k$와 공분산 $\Sigma_k$를 가진 클러스터 $k$의 가우스 분포입니다.
 
-3. **M-Step (Maximization Step)**: Update the parameters $\theta = (\pi_k, \mu_k, \Sigma_k)$ by maximizing the expected log-likelihood from the E-step.
+3. **M-단계 (최대화 단계)**: E-단계의 기대 로그 우도 (log likelihood)를 최대화하여 매개변수 $\theta = (\pi_k, \mu_k, \Sigma_k)$를 업데이트합니다.
 
-   The parameters are updated as follows:
-   - **Update the mean**:
+   매개변수는 다음과 같이 업데이트됩니다:
+   - **평균 업데이트**:
      
      $\mu_k = \frac{\sum_{i=1}^{N} \gamma_{z_i} \, x_i}{\sum_{i=1}^{N} \gamma_{z_i}}$
      
-   - **Update the covariance**:
+   - **공분산 업데이트**:
      
      $\Sigma_k = \frac{\sum_{i=1}^{N} \gamma_{z_i} (x_i - \mu_k)(x_i - \mu_k)^T}{\sum_{i=1}^{N} \gamma_{z_i}}$
      
-   - **Update the mixture weights**:
+   - **혼합 가중치 업데이트**:
      
      $\pi_k = \frac{1}{N} \sum_{i=1}^{N} \gamma_{z_i}$
      
-   where $N$ is the total number of data points, and $K$ is the number of clusters.
+   여기서 $N$은 총 데이터 포인트 수이고 $K$는 클러스터 수입니다.
 
-These E and M steps repeat until convergence, yielding optimized parameters $\theta$ that enhance the model’s accuracy in predicting user ratings.
+이러한 E, M 단계는 수렴할 (convergence) 때까지 반복되어 유저 평점 예측의 정확도를 향상시키는 최적화된 매개변수 $\theta$를 생성합니다.
 
-- Performance Comparison: K-Means vs GMM
+- 성능 비교: K-Means vs GMM
 
 | K | K-Means RMSE | K-Means BIC | K-Means LL | GMM RMSE | GMM BIC | GMM LL |
 |---|---|---|---|---|---|---|
@@ -80,24 +94,26 @@ These E and M steps repeat until convergence, yielding optimized parameters $\th
 | 11 | 0.4873 | -2,618,841 | -2,571,972 | 0.4998 | -1,450,890 | -1,404,022 |
 | 12 | 0.4797 | -2,618,970 | -2,567,840 | 0.5020 | -1,454,027 | -1,402,897 |
 
-- Based on user ratings, GMM performs slightly better than K-means, indicating similar performance given the current dataset. However, the gains from GMM are minor and given the current results, both models are suitable for selection. The results hint that GMM generalizes user data better and may perform better in complex data settings; however, these claims need to be substantiated through evidence.
+- 유저 평점 데이터를 기반으로 한 실험 결과, GMM이 K-means 대비 소폭 더 나은 성능을 보였으나 현재 데이터셋에서는 두 모델 모두 전반적으로 유사한 성능을 나타냈습니다.
+성능 차이는 제한적이었으며 현 결과만을 기준으로 할 때 두 모델 모두 합리적인 선택으로 판단됩니다. 다만, GMM은 확률적 클러스터링을 통해 유저 선호도의 중첩과 불확실성을 모델링할 수 있으므로 보다 복잡한 데이터 분포에서는 K-means보다 우수한 일반화 성능을 보일 가능성이 있습니다. 이러한 가설은 추가적인 실험을 통해 검증이 필요합니다.
 
-### Hypothesis
-- We expect K-means and GMM to perform similarly given the current dataset, but as underlying distribution becomes more complex and as complications are introduced, GMM will generalize better than K-means and will be reflected via test results.
-- To test our hypothesis, after EDA is performed and parameters are optimized, we will put our GMM and K-means model through 3 stress tests:
-  - Stress Test 1: Missing data at varying rates [0.1, 0.3, 0.5, 0.7]
-  - Stress Test 2: Noise introduction [baseline, moderate, strong, adversarial]
-  - Stress Test 3: Missing data at 80% and strong noise introduction
-- The results of Stress Test 3 will be used to compute percentage improvement of the optimal GMM. 
+### 가설
+- 현재 데이터셋에서는 K-means와 GMM이 유사한 성능을 보일 것으로 예상되나, 데이터 분포의 복잡성이 증가할수록 GMM이 K-means보다 더 나은 일반화 성능을 보일 것으로 가정합니다. 해당 가설을 검증하기 위해 EDA 및 하이퍼파라미터 최적화 이후 K-means와 GMM을 3가지 스트레스 테스트 환경에서 비교 평가합니다.
+- 가설을 테스트하기 위해 EDA를 수행하고 매개변수를 최적화한 후 GMM 및 K-means 모델을 다음과 같은 3가지 스트레스 테스트를 통해 평가합니다:
+  - 스트레스 테스트 1: 다양한 비율의 누락된 데이터 [0.1, 0.3, 0.5, 0.7]
+  - 스트레스 테스트 2: 노이즈 도입 [baseline, 보통, 강함, 적대적]
+  - 스트레스 테스트 3: 80% 누락된 데이터 + 희소 / 롱테일 이상치 (sparse / heavy-tailed outlier noise) 도입
+- 스트레스 테스트 3의 결과는 최적 GMM의 백분율 개선을 계산하는 데 사용됩니다.
 
-## Approach
+## 접근 방식
 
-### EDA
+### 탐색적 데이터 분석(EDA)
 
-To understand the underlying data, we will apply t-SNE plots to both K-means and GMM. To do so, we first need to determine hyperparameter settings for t-SNE plots, namely the perplexity hyperparameter.
-We will determine these settings via KL-Divergence computations. For K-means, we also compute distortion and silhouette scores.
+기본 데이터 구조를 분석하기 위해 K-means와 GMM 모두에 대해 t-SNE 시각화를 수행합니다. 이를 위해 먼저 t-SNE의 주요 하이퍼파라미터인 (hyperparameter) perplexity 값을 결정해야 합니다.
+Perplexity 설정은 KL 발산(Kullback–Leibler Divergence)을 기준으로 최적화합니다.
+또한 K-means의 경우, 군집화 품질 평가를 위해 왜곡(inertia, distortion) 및 실루엣 점수(silhouette score)를 추가로 계산합니다.
 
-| K-means Distortion | K-means Silhouette |
+| K-means 왜곡 | K-means 실루엣 |
 | -- | -- |
 | ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/Kmeans%20Distortion.png) | ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/Kmeans%20Silhouette.png) |
 
@@ -106,8 +122,10 @@ We will determine these settings via KL-Divergence computations. For K-means, we
 | ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/Kmeans%20Perplexity.png) | ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/GMM%20Perplexity.png) |
 | ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/Kmeans%20KL.png) | ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/GMM%20KL.png) |
 
-- Distortion and silhouette scores indicate that K-means performs best at lower K values, despite various user rating distributions present in the data.
-- Based on KL-Divergence scores and visualizations of perplexity plots, we choose perplexity = 50 for our t-SNE settings. We now visualize our t-SNE plots for K-means and GMM:
+- 왜곡 및 실루엣 점수는 데이터에 다양한 유저 평점 분포가 있음에도 불구하고 K-means가 낮은 K 값에서 가장 잘 수행됨을 나타냅니다.
+- KL-발산 점수와 Perplexity 시각화를 기반으로 t-SNE 설정에 복잡도 = 50을 선택합니다. 
+
+이제 K-means와 GMM에 대한 t-SNE 플롯을 시각화합니다:
 
 <table>
   <tr>
@@ -120,108 +138,110 @@ We will determine these settings via KL-Divergence computations. For K-means, we
   </tr>
 </table>
 
-As we hypothesized, K-means clusters have significant overlap across all K values, where clusters generally clump into a singular blob. This is indicative of K-means inability to generalize underlying data within Netflix user ratings.
-On the other hand, GMM clusters have clear and clean separations between each groups. These visualizations indicate that GMM generalizes high dimensional data effectively, as we expected. However, to solidify our findings, we must put both models under our stress tests.
+가설에서 예상했듯이 K-means 모델은 모든 K 값에서 상당한 중첩을 보이며 전반적으로 하나의 blob로 뭉치는 경향을 보입니다. 이는 Netflix 유저 평점 데이터의 잠재적 구조를 K-means가 효과적으로 일반화하지 못함을 시사합니다. 반면, GMM 모델은 각 그룹 간의 명확하고 뚜렷한 분리를 보입니다. 이러한 시각화 결과는 GMM이 고차원 데이터에 대해 효과적으로 일반화한다는 점을 뒷받침하며 이는 사전에 설정한 가설과 일치합니다. 이러한 관찰을 보다 확실히 검증하기 위해 두 모델 모두 스트레스 테스트를 수행할 필요가 있습니다.
 
-First, we visualize our results for comparison:
+먼저 비교를 위해 결과를 시각화합니다:
 
 | RMSE | GMM BIC | K-means BIC |
 | -- | -- | -- |
 | ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/RMSE%20plots.png) | ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/GMM%20BIC.png) | ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/Kmeans%20BIC.png) |
 
-### Model Selection
+### 모델 선택
 
-Based on these results, the RMSE values for K-means and GMM are both stable and comparable. Performance alternates across different numbers of clusters, with K-means outperforming GMM in certain ranges and GMM performing better in others.
+이러한 결과를 바탕으로, K-means와 GMM의 RMSE 값은 전반적으로 안정적이며 유사한 수준을 유지함을 확인할 수 있습니다. 두 모델의 성능은 클러스터 수에 따라 교대로 나타나며, 특정 K 범위에서는 K-means가 GMM보다 우수한 성능을 보이고, 다른 범위에서는 GMM이 더 나은 성능을 보입니다.
 
-Whereas both models perform well on this dataset, our manifold analysis suggests that K-means does not generalize effectively to the underlying data distribution. In particular, we observe that K-means BIC values increase monotonically as K increases, indicating deteriorating model quality with additional clusters.
-This behavior is notable because it implies that K-means achieves optimal performance at K = 3, consistent with the minimum distortion scores observed earlier. Beyond this point, increasing the number of clusters fails to capture additional meaningful structure and instead degrades model performance.
+두 모델 모두 본 데이터셋에서 우수한 예측 성능을 보이지만 manifold analysis 결과 K-means는 기본 데이터 분포를 효과적으로 일반화하지 못함이 관찰됩니다. 특히 K-means의 BIC 값은 K가 증가함에 따라 단조 증가하는 경향을 보이며 이는 클러스터 수가 늘어날수록 모델 성능이 오히려 악화됨을 의미합니다.
 
-These findings suggest that the K-means model is limited in its ability to represent nuanced patterns in Netflix user rating distributions. As the number of clusters is forced upward, K-means increasingly overfits local structures while failing to generalize the global manifold, resulting in underperformance.
-BIC scores for GMM are worse than K-means across all K values by a large margin. However, at K = 3 and above, GMM shows near monotonic decrease in BIC, where the global minimum appears at K = 20, indicating model improvement and likelihood gains despite BIC penalty. 
+K-means 모델은 K = 3에서 최적의 성능을 달성함을 시사하며 이는 앞서 관찰된 최소 왜곡 점수(distortion score) 결과와도 일관됩니다. 해당 지점을 초과하여 클러스터 수를 증가시킬 경우 추가적인 의미 있는 구조를 포착하지 못하고 모델 성능만 저하되는 현상이 발생합니다.
 
-However, under current conditions, both K-means and GMM perform well in terms of RMSE. In order to test and compare these models, we will now evaluate them through stress tests.
-Based on the above results, we make the following model selection for stress test evaluations:
+이는 K-means 모델이 Netflix 유저 평점 분포 내의 미묘한 구조적 패턴을 표현하는 데 한계를 가진다는 점을 보여줍니다. 클러스터 수가 강제로 증가함에 따라 K-means는 local 구조에 과적합되는 (overfitting) 반면 전역 manifold를 일반화하지 못해 성능이 저하됩니다.
 
-- **K-means K = 3 (seed = 0):** Best performing K-means settings based on RMSE and BIC, as well as distortion scores
-- **GMM K = 3 (seed = 1):** 2nd lowest minimum of BIC. Global minimum for RMSE was achieved by K = 4, but BIC levels also reached the second highest at this point.
-Therefore, we test with K = 3 instead of 4.
-- **GMM K = 20 (seed = 1):** Global minimum of BIC with large likelihood gains despite BIC penalty of model complexity
+반면, GMM의 BIC 값은 모든 K 값에서 K-means보다 절대적으로 높은 값을 보입니다. 그러나 K = 3 이상에서는 GMM의 BIC가 거의 단조 감소하는 추세를 보이며 전역 최소값은 K = 20에서 관찰됩니다. 이는 BIC 페널티에도 불구하고 우도 증가에 따른 모델 개선 효과가 존재함을 의미합니다.
 
-## Evaluation
-### Stress Test 1 (Missing Data)
+종합적으로 볼 때 현재 데이터 조건에서는 K-means와 GMM 모두 RMSE 기준으로 우수한 성능을 보입니다. 그러나 모델의 일반화 능력과 구조적 표현력을 보다 명확히 비교하기 위해 이후 단계에서는 스트레스 테스트를 통해 두 모델을 추가적으로 평가합니다.
 
-For this stress test, we force missing data at varying rates. Namely, we test the models in the following severity:
+위 결과를 바탕으로 스트레스 테스트 평가를 위해 다음과 같이 모델을 선정합니다:
+
+- **K-means K = 3 (시드 = 0):** RMSE 및 BIC, 왜곡 점수를 기반으로 한 최고 성능의 K-means 설정
+- **GMM K = 3 (시드 = 1):** BIC의 두 번째로 낮은 최소값. RMSE의 전역 최소값은 K = 4에서 달성되었으나 해당 지점에서 BIC 값 또한 두 번째로 높은 수준에 도달하였습니다.
+이에 따라, 모델 복잡도에 대한 페널티를 고려하여 K = 4 대신 K = 3을 테스트 대상으로 선택하였습니다.
+- **GMM K = 20 (시드 = 1):** 모델 복잡도에 따른 BIC 페널티에도 불구하고 큰 우도(likelihood) 이득을 동반한 BIC의 전역 최소값
+
+## 평가
+### 스트레스 테스트 1 (누락된 데이터)
+
+이 스트레스 테스트에서는 다양한 비율로 데이터 누락을 강제합니다. 즉, 다음 심각도로 모델을 테스트합니다:
 - [0.1, 0.3, 0.5, 0.7]
-- The above missing data rates account for a percentage of observed data, not the entire matrix
-- Therefore, total percentage of missing data may be higher than their respective rates after forcing missing data
+- 위의 누락된 데이터 비율은 전체 행렬이 아닌 관찰된 데이터의 백분율을 나타냅니다
+- 따라서 누락된 데이터를 강제한 후 실제 누락된 데이터의 총 백분율은 해당 비율보다 높을 수 있습니다
 
-With the defined model parameters, we have the following results:
-| Stress Test 1 Results | Stress Test 1 t-SNE |
+정의된 모델 매개변수를 사용하여 다음 결과를 얻습니다:
+| 스트레스 테스트 1 결과 | 스트레스 테스트 1 t-SNE |
 | -- | -- |
 | ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/Stress%20Test%201.png) | ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/Stress%20Test%201%20tSNE.png) |
 
-**Summary**
-- In terms of RMSE, both GMM models are considerably more robust to missing data compared to K-means. K-means RMSE increase almost exponentially as missing rate increases, while GMM RMSE values increase very slightly.
-- BIC values remain ideal for K-means across all missing data rates. However, this is from underfitting due to less data. RMSE performance for K-means is significantly worsened, and as K increases, underfitting increases, resulting in performance decrease. Without enough data, K-means cannot overcome underfitting despite a better BIC score.
-- GMM Entropy, although monotonically increasing, remains near zero, indicating confident cluster assignments even with substantial missing data
-- Cluster agreement between K-means and GMM at K = 20 is effectively nonexistent, reflecting growing divergence in clustering solutions under challenging conditions, where K-means cannot identify meaningful clusters.
+**요약**
+- RMSE 측면에서 두 GMM 모델 모두 K-means에 비해 누락된 데이터에 상당히 더 강력합니다. 누락 비율이 증가함에 따라 K-means RMSE는 거의 기하급수적으로 증가하는 반면 GMM RMSE 값은 매우 약간 증가합니다.
+- 모든 누락된 데이터 비율에서 K-means의 BIC 값은 이상적으로 유지됩니다. 그러나 이는 데이터 부족으로 인한 과소적합 때문입니다. K-means의 RMSE 성능은 크게 악화되었으며, K가 증가함에 따라 과소적합이 증가하여 성능이 저하됩니다. 충분한 데이터가 없으면 K-means는 더 나은 BIC 점수에도 불구하고 과소적합을 극복할 수 없습니다.
+- GMM 엔트로피는 단조롭게 증가하지만 0에 가깝게 유지되어 상당한 누락된 데이터가 있어도 확신 있는 클러스터 할당을 나타냅니다
+- K = 20에서 K-means와 GMM 간의 클러스터 일치는 사실상 존재하지 않으며, K-means가 의미 있는 클러스터를 식별할 수 없는 도전적인 조건에서 클러스터링 솔루션의 분기가 증가함을 반영합니다.
 
-**t-SNE Analysis**
+**t-SNE 분석**
 - K-means:
-  - Clusters become increasingly diffused and overlapping as the missing rate increases. Eventually, clusters clump into a singular blob.
-  - Struggles to maintain distinct cluster boundaries in the presence of substantial missing data
+  - 누락 비율이 증가함에 따라 클러스터가 점점 더 확산되고 겹칩니다. 결국 클러스터는 단일 덩어리로 뭉칩니다.
+  - 상당한 누락된 데이터가 있을 때 뚜렷한 클러스터 경계를 유지하는 데 어려움을 겪습니다
 - GMM:
-  - Clusters remain well-defined and separated even at high missing rates. Distances between clusters increase as missing rate increases, indicating growing uncertainty between clusters. This is expected, as missing data increases, GMM assigns lower probabilities to each data point for cluster assignment.
-  - GMM at K = 20 shows more nuanced cluster structure compared to K = 3, capturing finer distinctions among users.
+  - 높은 누락 비율에서도 클러스터가 잘 정의되고 분리되어 유지됩니다. 누락 비율이 증가함에 따라 클러스터 간 거리가 증가하여 클러스터 간 불확실성이 증가함을 나타냅니다. 이는 예상된 것으로, 누락된 데이터가 증가함에 따라 GMM은 클러스터 할당을 위해 각 데이터 포인트에 더 낮은 확률을 할당합니다.
+  - K = 20의 GMM은 K = 3에 비해 더 미묘한 클러스터 구조를 보여 유저 간의 더 세밀한 구별을 포착합니다.
 
-This stress test validates our earlier findings that GMM is more robust and better suited for capturing the underlying data distribution, especially in the presence of missing data.
-We now begin Stress Test 2.
+이 스트레스 테스트는 특히 누락된 데이터가 있는 경우 GMM이 더 강력하고 기본 데이터 분포를 포착하는 데 더 적합하다는 우리의 초기 발견을 검증합니다.
+이제 스트레스 테스트 2를 시작합니다.
 
-### Stress Test 2 (Noise Levels)
+### 스트레스 테스트 2 (노이즈 수준)
 
-For this stress test, we introduce varying levels of noise and corruption across our data. We test the models in the following severity:
-- Baseline (heteroskedastic Gaussian), Moderate (item-correlated noise), Strong (missing not at random), Adversarial (adversarial flips)
+이 스트레스 테스트에서는 데이터 전반에 다양한 수준의 노이즈와 손상을 도입합니다. 다음 심각도로 모델을 테스트합니다:
+- 기준선 (이분산 가우시안), 보통 (항목 상관 노이즈), 강함 (무작위 누락), 적대적 (적대적 뒤집기)
 
-With the defined model parameters, we have the following results:
-| Stress Test 2 Results | Stress Test 2 t-SNE |
+정의된 모델 매개변수를 사용하여 다음 결과를 얻습니다:
+| 스트레스 테스트 2 결과 | 스트레스 테스트 2 t-SNE |
 | -- | -- |
 | ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/Stress%20Test%202.png) | ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/Stress%20Test%202%20tSNE.png) |
 
-**Summary**
-- GMM at K = 3 maintains lowest RMSE values, while K-means performs slightly better than GMM at K = 20 for initial noise severities
-- GMM performs especially better at Strong Noise level in terms of RMSE
-- Cluster agreements between GMM at K = 3 and K-means remains between 30 ~ 50% across noise types while for GMM at K = 20 and K-means, cluster agreements range from 0 ~ 10%
-- Entropy levels remain lowest for GMM at K = 3, though as noise levels increase, entropy increases as well
+**요약**
+- K = 3의 GMM은 가장 낮은 RMSE 값을 유지하는 반면, K-means는 초기 노이즈 심각도에서 K = 20의 GMM보다 약간 더 나은 성능을 보입니다
+- GMM은 RMSE 측면에서 강한 노이즈 수준에서 특히 더 나은 성능을 보입니다
+- K = 3의 GMM과 K-means 간의 클러스터 일치는 노이즈 유형에 걸쳐 30 ~ 50% 사이를 유지하는 반면, K = 20의 GMM과 K-means의 경우 클러스터 일치는 0 ~ 10% 범위입니다
+- 엔트로피 수준은 K = 3의 GMM에서 가장 낮게 유지되지만 노이즈 수준이 증가함에 따라 엔트로피도 증가합니다
 
-**t-SNE Analysis**
-- The above visualizations indicate the impact of different noise types on clustering structure. These tests are quite extreme, and both GMM and K-means eventually break down under severe noise conditions. However, K-means break down from the baseline noise levels and worsens as noise severity increases, as indicated by poor cluster separation in t-SNE plots. GMM appears to be more robust in maintaining some clustering structure compared to K-means, especially under adversarial noise conditions, where BIC is the minimum before model failure.
-- These results prove the robustness of GMM clustering over K-means given the data structure of Netflix data. However, as observed, GMM is not immune to missing data, and especially not to noise or data corruption. Current GMM model struggles significantly at noise stress tests and further improvement is required to overcome these challenges.
+**t-SNE 분석**
+- 위의 시각화는 다양한 노이즈 유형이 클러스터링 구조에 미치는 영향을 나타냅니다. 이러한 테스트는 매우 극단적이며 GMM과 K-means 모두 심각한 노이즈 조건에서 결국 고장납니다. 그러나 K-means는 기준선 노이즈 수준부터 고장나고 노이즈 심각도가 증가함에 따라 악화되며, 이는 t-SNE 플롯의 열악한 클러스터 분리로 나타납니다. GMM은 특히 적대적 노이즈 조건에서 K-means에 비해 일부 클러스터링 구조를 유지하는 데 더 강력한 것으로 보이며, 여기서 BIC는 모델 실패 전 최소값입니다.
+- 이러한 결과는 Netflix 데이터의 데이터 구조를 고려할 때 K-means에 비해 GMM 클러스터링의 견고성을 입증합니다. 그러나 관찰된 바와 같이 GMM은 누락된 데이터에 면역이 없으며, 특히 노이즈나 데이터 손상에는 면역이 없습니다. 현재 GMM 모델은 노이즈 스트레스 테스트에서 상당히 어려움을 겪으며 이러한 문제를 극복하기 위해 추가 개선이 필요합니다.
 
-We now perform Stress Test 3.
+이제 스트레스 테스트 3을 수행합니다.
 
-### Stress Test 3 (Missing data + Sparse / Heavy-Tailed Outliers)
-This stress test is designed to simulate real-world data scenarios. Users are very unlikely to rate Netflix programs, and hence the high rate of missing data represents an accurate representation. Furthermore sparse and long tailed outliers represent the most realistic noise data, since only popular contents receive the most ratings. A significant number of Netflix contents receive very few ratings.
+### 스트레스 테스트 3 (누락된 데이터 + 희소 / 롱테일 이상치)
+이 스트레스 테스트는 실제 데이터 시나리오를 시뮬레이션하도록 설계되었습니다. 유저가 Netflix 프로그램을 평가할 가능성이 매우 낮으므로 높은 누락된 데이터 비율은 정확한 표현을 나타냅니다. 또한 희소하고 롱테일 이상치는 가장 인기 있는 콘텐츠만 가장 많은 평점을 받기 때문에 가장 현실적인 노이즈 데이터를 나타냅니다. 상당수의 Netflix 콘텐츠는 매우 적은 평점을 받습니다.
 
-With the defined model parameters, we have the following results:
-| Stress Test 3 Results | Stress Test 3 t-SNE |
+정의된 모델 매개변수를 사용하여 다음 결과를 얻습니다:
+| 스트레스 테스트 3 결과 | 스트레스 테스트 3 t-SNE |
 | -- | -- |
 | ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/Stress%20Test%203.png) | ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/Stress%20Test%203%20tSNE.png) |
 
-## Results
-The above results show that GMM is more robust under strenuous conditions of high missing data rate and noise. Findings are similar to our previous tests, with GMM (K=3) outperforming KMeans in RMSE and BIC, while GMM (K = 20) shows higher RMSE and BIC than K-means. Entropy levels are higher for GMM at K = 20 than K = 3, and the poor performance in GMM at K = 20 likely stems from overfitting in cluster assignments. 
+## 결과
+위의 결과는 GMM이 높은 누락된 데이터 비율과 노이즈의 힘든 조건에서 더 강력함을 보여줍니다. 발견은 이전 테스트와 유사하며, GMM (K=3)이 RMSE 및 BIC에서 KMeans를 능가하는 반면 GMM (K = 20)은 K-means보다 높은 RMSE 및 BIC를 보여줍니다. 엔트로피 수준은 K = 20의 GMM이 K = 3보다 높으며, K = 20의 GMM의 열악한 성능은 클러스터 할당의 과적합에서 비롯될 가능성이 높습니다.
 
-Since BIC between the two GMM settings are close, we focus on RMSE and entropy levels for performance comparison, and therefore choose **K = 3** as the preferred model under stress conditions.
+두 GMM 설정 간의 BIC가 가깝기 때문에 성능 비교를 위해 RMSE 및 엔트로피 수준에 초점을 맞추고 따라서 스트레스 조건에서 선호되는 모델로 **K = 3**을 선택합니다.
 
-We now calculate the overall performance increase of GMM (K = 3) over KMeans in this stress test.
+이제 이 스트레스 테스트에서 KMeans에 비해 GMM (K = 3)의 전체 성능 향상을 계산합니다.
 
-RMSE Improvement = $\frac{RMSE<sub>K-means</sub> - RMSE<sub>GMM</sub>}{RMSE<sub>K-means</sub>} = 29.468950777989367 %
+RMSE 개선 = $\frac{RMSE<sub>K-means</sub> - RMSE<sub>GMM</sub>}{RMSE<sub>K-means</sub>} = 29.468950777989367 %
 
-- **Optimal GMM Clusters: 3 (seed = 1)**
+- **최적 GMM 클러스터: 3 (시드 = 1)**
 - **RMSE: 2.49**
-- **RMSE improvement over the baseline: 29.47%**
+- **기준선 대비 RMSE 개선: 29.47%**
 
-The achieved RMSE score indicates that GMM at K = 3 accurately predicts user ratings even under real-world data settings, delivering recommendations that align well with user preferences.
+달성된 RMSE 점수는 K = 3의 GMM이 실제 데이터 설정에서도 유저 평점을 정확하게 예측하여 유저 선호도와 잘 일치하는 추천을 제공함을 나타냅니다.
 
-## Future Improvements
-- **Hybrid Recommendation Approach**: Combine collaborative filtering with content-based filtering to improve recommendation accuracy.
-- **Model Improvement**: introduce more sophisticated robustness techniques (especially against noise / data corruption) or apply neural network recommendations
+## 향후 개선 사항
+- **하이브리드 추천 접근법**: 추천 정확도를 향상시키기 위해 협업 필터링과 콘텐츠 기반 필터링을 결합합니다.
+- **모델 개선**: 보다 정교한 견고성 기술(특히 노이즈 / 데이터 손상에 대한) 도입 또는 신경망 추천 적용
