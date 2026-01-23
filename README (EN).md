@@ -85,9 +85,9 @@ These E and M steps repeat until convergence, yielding optimized parameters $\th
 ### Hypothesis
 - We expect K-means and GMM to perform similarly given the current dataset, but as underlying distribution becomes more complex and as complications are introduced, GMM will generalize better than K-means and will be reflected via test results.
 - To test our hypothesis, after EDA is performed and parameters are optimized, we will put our GMM and K-means model through 3 stress tests:
-  - Stress Test 1: Missing data at varying rates [0.1, 0.3, 0.5, 0.7]
-  - Stress Test 2: Noise introduction [baseline, moderate, strong, adversarial]
-  - Stress Test 3: Missing data at 80% and sparse / heavy-tailed outlier noise introduction
+  - Stress Test 1: Missing data at varying rates [0.1, 0.3, 0.5, 0.7].
+  - Stress Test 2: Noise introduction [baseline, moderate, strong, adversarial].
+  - Stress Test 3: Missing data at 80% and sparse / heavy-tailed outlier noise introduction.
 - The results of Stress Test 3 will be used to compute percentage improvement of the optimal GMM. 
 
 ## Approach
@@ -142,18 +142,17 @@ BIC scores for GMM are worse than K-means across all K values by a large margin.
 However, under current conditions, both K-means and GMM perform well in terms of RMSE. In order to test and compare these models, we will now evaluate them through stress tests.
 Based on the above results, we make the following model selection for stress test evaluations:
 
-- **K-means K = 3 (seed = 0):** Best performing K-means settings based on RMSE and BIC, as well as distortion scores
-- **GMM K = 3 (seed = 1):** 2nd lowest minimum of BIC. Global minimum for RMSE was achieved by K = 4, but BIC levels also reached the second highest at this point.
-Therefore, we test with K = 3 instead of 4.
-- **GMM K = 20 (seed = 1):** Global minimum of BIC with large likelihood gains despite BIC penalty of model complexity
+- **K-means K = 3 (seed = 0):** Best performing K-means settings based on RMSE and BIC, as well as distortion scores.
+- **GMM K = 3 (seed = 1):** 2nd lowest minimum of BIC. Global minimum for RMSE was achieved by K = 4, but BIC levels also reached the second highest at this point.Therefore, we test with K = 3 instead of 4.
+- **GMM K = 20 (seed = 1):** Global minimum of BIC with large likelihood gains despite BIC penalty of model complexity.
 
 ## Evaluation
 ### Stress Test 1 (Missing Data)
 
 For this stress test, we force missing data at varying rates. Namely, we test the models in the following severity:
 - [0.1, 0.3, 0.5, 0.7]
-- The above missing data rates account for a percentage of observed data, not the entire matrix
-- Therefore, total percentage of missing data may be higher than their respective rates after forcing missing data
+- The above missing data rates account for a percentage of observed data, not the entire matrix.
+- Therefore, total percentage of missing data may be higher than their respective rates after forcing missing data.
 
 With the defined model parameters, we have the following results:
 | Stress Test 1 Results | Stress Test 1 t-SNE |
@@ -163,13 +162,13 @@ With the defined model parameters, we have the following results:
 **Summary**
 - In terms of RMSE, both GMM models are considerably more robust to missing data compared to K-means. K-means RMSE increase almost exponentially as missing rate increases, while GMM RMSE values increase very slightly.
 - BIC values remain ideal for K-means across all missing data rates. However, this is from underfitting due to less data. RMSE performance for K-means is significantly worsened, and as K increases, underfitting increases, resulting in performance decrease. Without enough data, K-means cannot overcome underfitting despite a better BIC score.
-- GMM Entropy, although monotonically increasing, remains near zero, indicating confident cluster assignments even with substantial missing data
+- GMM Entropy, although monotonically increasing, remains near zero, indicating confident cluster assignments even with substantial missing data.
 - Cluster agreement between K-means and GMM at K = 20 is effectively nonexistent, reflecting growing divergence in clustering solutions under challenging conditions, where K-means cannot identify meaningful clusters.
 
 **t-SNE Analysis**
 - K-means:
   - Clusters become increasingly diffused and overlapping as the missing rate increases. Eventually, clusters clump into a singular blob.
-  - Struggles to maintain distinct cluster boundaries in the presence of substantial missing data
+  - Struggles to maintain distinct cluster boundaries in the presence of substantial missing data.
 - GMM:
   - Clusters remain well-defined and separated even at high missing rates. Distances between clusters increase as missing rate increases, indicating growing uncertainty between clusters. This is expected, as missing data increases, GMM assigns lower probabilities to each data point for cluster assignment.
   - GMM at K = 20 shows more nuanced cluster structure compared to K = 3, capturing finer distinctions among users.
@@ -180,7 +179,7 @@ We now begin Stress Test 2.
 ### Stress Test 2 (Noise Levels)
 
 For this stress test, we introduce varying levels of noise and corruption across our data. We test the models in the following severity:
-- Baseline (heteroskedastic Gaussian), Moderate (item-correlated noise), Strong (missing not at random), Adversarial (adversarial flips)
+- Baseline (heteroskedastic Gaussian), Moderate (item-correlated noise), Strong (missing not at random), Adversarial (adversarial flips).
 
 With the defined model parameters, we have the following results:
 | Stress Test 2 Results | Stress Test 2 t-SNE |
@@ -188,10 +187,10 @@ With the defined model parameters, we have the following results:
 | ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/Stress%20Test%202.png) | ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/Stress%20Test%202%20tSNE.png) |
 
 **Summary**
-- GMM at K = 3 maintains lowest RMSE values, while K-means performs slightly better than GMM at K = 20 for initial noise severities
-- GMM performs especially better at Strong Noise level in terms of RMSE
-- Cluster agreements between GMM at K = 3 and K-means remains between 30 ~ 50% across noise types while for GMM at K = 20 and K-means, cluster agreements range from 0 ~ 10%
-- Entropy levels remain lowest for GMM at K = 3, though as noise levels increase, entropy increases as well
+- GMM at K = 3 maintains lowest RMSE values, while K-means performs slightly better than GMM at K = 20 for initial noise severities.
+- GMM performs especially better at Strong Noise level in terms of RMSE.
+- Cluster agreements between GMM at K = 3 and K-means remains between 30 ~ 50% across noise types while for GMM at K = 20 and K-means, cluster agreements range from 0 ~ 10%.
+- Entropy levels remain lowest for GMM at K = 3, though as noise levels increase, entropy increases as well.
 
 **t-SNE Analysis**
 - The above visualizations indicate the impact of different noise types on clustering structure. These tests are quite extreme, and both GMM and K-means eventually break down under severe noise conditions. However, K-means break down from the baseline noise levels and worsens as noise severity increases, as indicated by poor cluster separation in t-SNE plots. GMM appears to be more robust in maintaining some clustering structure compared to K-means, especially under adversarial noise conditions, where BIC is the minimum before model failure.
@@ -214,7 +213,7 @@ Since BIC between the two GMM settings are close, we focus on RMSE and entropy l
 
 We now calculate the overall performance increase of GMM (K = 3) over KMeans in this stress test.
 
-RMSE Improvement =  $\frac{RMSE_{K-means} - RMSE_{GMM}}{RMSE_{K-means}} = 29.468950777989367%$
+RMSE Improvement =  $\frac{RMSE_{K-means} - RMSE_{GMM}}{RMSE_{K-means}} = 29.468950777989367\\%$
 
 - **Optimal GMM Clusters: 3 (seed = 1)**
 - **RMSE: 2.49**
@@ -224,4 +223,4 @@ The achieved RMSE score indicates that GMM at K = 3 accurately predicts user rat
 
 ## Future Improvements
 - **Hybrid Recommendation Approach**: Combine collaborative filtering with content-based filtering to improve recommendation accuracy.
-- **Model Improvement**: introduce more sophisticated robustness techniques (especially against noise / data corruption) or apply neural network recommendations
+- **Model Improvement**: introduce more sophisticated robustness techniques (especially against noise / data corruption) or apply neural network recommendations.
