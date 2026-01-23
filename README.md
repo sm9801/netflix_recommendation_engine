@@ -50,7 +50,7 @@ However, user preferences in a real-world streaming platform like Netflix are ra
 | 11 | 0.4873 | -2,618,841 | -2,571,972 | 0.4998 | -1,450,890 | -1,404,022 |
 | 12 | 0.4797 | -2,618,970 | -2,567,840 | 0.5020 | -1,454,027 | -1,402,897 |
 
-- Based on user ratings, GMM performs slightly better than K-means, indicating similar performance given the current dataset. However, we claim that GMM generalizes user data better and will perform better in complex data settings.
+- Based on user ratings, GMM performs slightly better than K-means, indicating similar performance given the current dataset. However, the gains from GMM are minor and given the current results, both models are suitable for selection. The results hint that GMM generalizes user data better and may perform better in complex data settings; however, these claims need to be substantiated through evidence.
 
 ### Hypothesis
 - We expect K-means and GMM to perform similarly given the current dataset, but as underlying distribution becomes more complex and as complications are introduced, GMM will generalize better than K-means and will be reflected via test results.
