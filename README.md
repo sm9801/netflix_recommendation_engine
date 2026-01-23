@@ -158,7 +158,7 @@ With the defined model parameters, we have the following results:
 | -- | -- |
 | ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/Stress%20Test%201.png) | ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/Stress%20Test%201%20tSNE.png) |
 
-**Results**
+**Summary**
 - In terms of RMSE, both GMM models are considerably more robust to missing data compared to K-means. K-means RMSE increase almost exponentially as missing rate increases, while GMM RMSE values increase very slightly.
 - BIC values remain ideal for K-means across all missing data rates. However, this is from underfitting due to less data. RMSE performance for K-means is significantly worsened, and as K increases, underfitting increases, resulting in performance decrease. Without enough data, K-means cannot overcome underfitting despite a better BIC score.
 - GMM Entropy, although monotonically increasing, remains near zero, indicating confident cluster assignments even with substantial missing data
@@ -178,7 +178,26 @@ We now begin Stress Test 2.
 ### Stress Test 2 (Noise Levels)
 
 For this stress test, we introduce varying levels of noise and corruption across our data. We test the models in the following severity:
-- Baseline (heteroskedastic Gaussian), Moderate (item-correlated noise), Severe
+- Baseline (heteroskedastic Gaussian), Moderate (item-correlated noise), Strong (missing not at random), Adversarial (adversarial flips)
+
+With the defined model parameters, we have the following results:
+| Stress Test 2 Results | Stress Test 2 t-SNE |
+| -- | -- |
+| ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/Stress%20Test%202.png) | ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/Stress%20Test%202%20tSNE.png) |
+
+**Summary**
+- GMM at K = 3 maintains lowest RMSE values, while K-means performs slightly better than GMM at K = 20 for initial noise severities
+- GMM performs especially better at Strong Noise level in terms of RMSE
+- Cluster agreements between GMM at K = 3 and K-means remains between 30 ~ 50% across noise types while for GMM at K = 20 and K-means, cluster agreements range from 0 ~ 10%
+- Entropy levels remain lowest for GMM at K = 3, though as noise levels increase, entropy increases as well
+
+**t-SNE Analysis**
+- The above visualizations indicate the impact of different noise types on clustering structure. These tests are quite extreme, and both GMM and K-means eventually break down under severe noise conditions. However, K-means break down from the baseline noise levels and worsens as noise severity increases, as indicated by poor cluster separation in t-SNE plots. GMM appears to be more robust in maintaining some clustering structure compared to K-means, especially under adversarial noise conditions, where BIC is the minimum before model failure.
+- These results prove the robustness of GMM clustering over K-means given the data structure of Netflix data. However, as observed, GMM is not immune to missing data, and especially not to noise or data corruption. Current GMM model struggles significantly at noise stress tests and further improvement is required to overcome these challenges.
+
+We now perform Stress Test 3.
+
+### Stress Test 3 (Missing data + Sparse Outliers)
 
 ## Results
 - **Optimal GMM Clusters**: 3
