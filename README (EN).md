@@ -214,7 +214,7 @@ Since BIC between the two GMM settings are close, we focus on RMSE and entropy l
 
 We now calculate the overall performance increase of GMM (K = 3) over KMeans in this stress test.
 
-RMSE Improvement = $\frac{RMSE<sub>K-means</sub> - RMSE<sub>GMM</sub>}{RMSE<sub>K-means</sub>} = 29.468950777989367%$
+RMSE Improvement =  $\frac{RMSE_{K-means} - RMSE_{GMM}}{RMSE_{K-means}} = 29.468950777989367%$
 
 - **Optimal GMM Clusters: 3 (seed = 1)**
 - **RMSE: 2.49**
