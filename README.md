@@ -216,9 +216,9 @@ We now calculate the overall performance increase of GMM (K = 3) over KMeans in 
 
 RMSE Improvement = $\frac{RMSE<sub>K-means</sub> - RMSE<sub>GMM</sub>}{RMSE<sub>K-means</sub>} = 29.468950777989367 %
 
-- **Optimal GMM Clusters**: 3 (seed = 1)
-- **RMSE**: 2.49
-- **RMSE improvement over the baseline**: 29.47%
+- **Optimal GMM Clusters: 3 (seed = 1)**
+- **RMSE: 2.49**
+- **RMSE improvement over the baseline: 29.47%**
 
 The achieved RMSE score indicates that GMM at K = 3 accurately predicts user ratings even under real-world data settings, delivering recommendations that align well with user preferences.
 
