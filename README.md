@@ -4,6 +4,8 @@ This project is a machine learning-powered recommendation system designed to sug
 
 Full results and analysis can be found here: [Netflix Analysis](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Results%20copy.ipynb)
 
+Utilized Tech Stack: Python, NumPy, Pandas, scikit-learn, Seaborn, Matplotlib, Yellowbrick, Cleanlab
+
 ## Table of Contents
 - [Project Overview](#project-overview)
 - [Dataset and Methodology](#dataset-and-methodology)
@@ -197,16 +199,29 @@ With the defined model parameters, we have the following results:
 
 We now perform Stress Test 3.
 
-### Stress Test 3 (Missing data + Sparse Outliers)
+### Stress Test 3 (Missing data + Sparse / Heavy-Tailed Outliers)
+This stress test is designed to simulate real-world data scenarios. Users are very unlikely to rate Netflix programs, and hence the high rate of missing data represents an accurate representation. Furthermore sparse and long tailed outliers represent the most realistic noise data, since only popular contents receive the most ratings. A significant number of Netflix contents receive very few ratings.
+
+With the defined model parameters, we have the following results:
+| Stress Test 3 Results | Stress Test 3 t-SNE |
+| -- | -- |
+| ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/Stress%20Test%203.png) | ![](https://github.com/sm9801/Netflix_Recommendation_Engine/blob/master/Visualizations/Stress%20Test%203%20tSNE.png) |
 
 ## Results
-- **Optimal GMM Clusters**: 3
-- **RMSE**: 0.48
+The above results show that GMM is more robust under strenuous conditions of high missing data rate and noise. Findings are similar to our previous tests, with GMM (K=3) outperforming KMeans in RMSE and BIC, while GMM (K = 20) shows higher RMSE and BIC than K-means. Entropy levels are higher for GMM at K = 20 than K = 3, and the poor performance in GMM at K = 20 likely stems from overfitting in cluster assignments. 
 
-The achieved RMSE score indicates that the model accurately predicts user ratings, allowing it to deliver recommendations that align well with user preferences.
+Since BIC between the two GMM settings are close, we focus on RMSE and entropy levels for performance comparison, and therefore choose **K = 3** as the preferred model under stress conditions.
+
+We now calculate the overall performance increase of GMM (K = 3) over KMeans in this stress test.
+
+RMSE Improvement = $\frac{RMSE<sub>K-means</sub> - RMSE<sub>GMM</sub>}{RMSE<sub>K-means</sub>} = 29.468950777989367 %
+
+- **Optimal GMM Clusters**: 3 (seed = 1)
+- **RMSE**: 2.49
+- **RMSE improvement over the baseline**: 29.47%
+
+The achieved RMSE score indicates that GMM at K = 3 accurately predicts user ratings even under real-world data settings, delivering recommendations that align well with user preferences.
 
 ## Future Improvements
 - **Hybrid Recommendation Approach**: Combine collaborative filtering with content-based filtering to improve recommendation accuracy.
-- **Model Improvement**: introduce more sophisticated robustness techniques or apply neural network recommendations
-- **Interactive User Interface**: Create a simple web or desktop interface for users to input ratings and receive recommendations.
-- **Real-Time Updates**: Integrate real-time data handling to dynamically update recommendations as users provide new ratings.
+- **Model Improvement**: introduce more sophisticated robustness techniques (especially against noise / data corruption) or apply neural network recommendations
